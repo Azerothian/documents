@@ -1,0 +1,13 @@
+{
+  "renderer": "puppeteer",
+  "renderOptions": {
+    "pageSize": "A4",
+    "noBackground": true
+  },
+  "theme": "./theme/**/*",
+  "files": [
+    "./index.md",
+    "./fld/inside.md"
+  ],
+  "output": "../out/target-pup.pdf"
+}

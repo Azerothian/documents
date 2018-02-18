@@ -1,0 +1,12 @@
+{
+  "renderer": "pandoc",
+  "renderOptions": {
+    "pageSize": "A4",
+    "noBackground": true
+  },
+  "files": [
+    "./index.md",
+    "./fld/inside.md"
+  ],
+  "output": "../out/target.docx"
+}
