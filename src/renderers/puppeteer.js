@@ -45,7 +45,7 @@ export default async function puppeteerRenderer({contents, output, options, temp
   try {
     const page = await browser.newPage();
     log("loading file", tempFile);
-    await page.goto(tempFile, {waitUntil: "networkidle2"});
+    await page.goto(`file://${tempFile}`, {waitUntil: "networkidle2"});
     log("calling pdf", output);
     await page.pdf({path: output, format: "A4"});
     await browser.close();

@@ -60,7 +60,7 @@ export default async function bpmlPlugin({fileData, projectDir}) {
             page.setViewport(params.viewport);
           }
           log("loading file", `${projectFilePath}.html`);
-          await page.goto(`${projectFilePath}.html`, {waitUntil: "networkidle2"});
+          await page.goto(`file://${projectFilePath}.html`, {waitUntil: "networkidle2"});
           await page.evaluate((bpmnData) => {
             return new Promise((resolve, reject) => {
               try {
@@ -70,7 +70,6 @@ export default async function bpmlPlugin({fileData, projectDir}) {
                 viewer.importXML(bpmnData, (err) => {
                   if (!err) {
                     viewer.get("canvas").zoom("fit-viewport");
-                    // viewer.detach();
                     return resolve();
                   } else {
                     document.getElementById("canvas").textContent(JSON.stringify(err));

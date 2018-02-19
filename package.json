@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "build": "gulp && jest"
+  },
   "jest": {
     "testEnvironment": "node",
     "verbose": true,
@@ -16,6 +19,7 @@
     "@babel/plugin-proposal-class-properties": "^7.0.0-beta.40",
     "@babel/preset-env": "^7.0.0-beta.40",
     "@babel/preset-stage-0": "^7.0.0-beta.40",
+    "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.1",
     "del": "^3.0.0",
     "eslint": "^4.18.0",
@@ -24,20 +28,18 @@
     "gulp-babel": "^8.0.0-beta.1",
     "gulp-eslint": "^4.0.2",
     "gulp-nodemon": "^2.2.1",
-    "gulp-sourcemaps": "^2.6.4"
+    "gulp-sourcemaps": "^2.6.4",
+    "jest-cli": "^22.3.0"
   },
   "dependencies": {
     "bpmn-js": "^0.27.2",
     "debug": "^3.1.0",
     "front-matter": "^2.3.0",
     "fs-extra": "^5.0.0",
-    "glob": "^7.1.2",
     "globby": "^8.0.1",
     "markdown-it": "^8.4.1",
     "markdown-it-prism": "^1.1.1",
-    "marked": "^0.3.14",
     "minimist": "^1.2.0",
-    "node-pandoc": "^0.3.0",
     "puppeteer": "^1.1.0",
     "source-map-support": "^0.5.3",
     "temp-fs": "^0.9.9",
