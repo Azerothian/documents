@@ -16,7 +16,10 @@ import pandocRenderer from "./renderers/pandoc";
 import wkHtmlPdfRenderer from "./renderers/wkhtmltopdf";
 import puppeteerRenderer from "./renderers/puppeteer";
 
-import bpmnPlugin from "./plugins/bpmn";
+// import bpmnPlugin from "./plugins/bpmn";
+// import puppetPlugin from "./plugins/puppet";
+import PuppetPlugin from "./puppet";
+import bpmnPuppetPlugin from "./puppet/plugins/bpmn";
 
 
 const tempfsMkdir = util.promisify(tempfs.mkdir);
@@ -24,13 +27,7 @@ const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 const ensureDirAsync = util.promisify(fs.ensureDir);
 
-const md = new MarkdownIt();
-md.use(MarkdownItPrism, {
-  plugins: ["line-numbers"],
-});
-
-
-const plugins = [bpmnPlugin];
+const plugins = [];
 
 const log = debug("documents::renderer:");
 
@@ -50,7 +47,7 @@ async function extractFiles({files, targetDir}) {
     return files;
   }
 }
-async function renderHtml(targetFiles, sourceDir, projectDir, options) {
+async function renderHtml(targetFiles, sourceDir, projectDir, options, md) {
   log("renderHtml", {targetFiles, sourceDir, projectDir});
   return Promise.all(targetFiles.map(async(file) => {
     const fileData = await readFileAsync(path.resolve(sourceDir, file), {encoding: "utf8"});
@@ -66,9 +63,10 @@ async function renderHtml(targetFiles, sourceDir, projectDir, options) {
     }, Promise.resolve(fmExtract.body));
 
     const outputTarget = path.resolve(projectDir, path.dirname(file), `${path.basename(file, path.extname(file))}.html`);
+    const content = md.render(processed);
     return {
       path: file,
-      content: md.render(processed),
+      content,
       header: fmExtract.attributes,
       outputTarget,
     };
@@ -101,8 +99,19 @@ export default async function renderer(opts) {
   await copyAll(sourceDir, tempDir.path);
   const files = await extractFiles(options);
   // log("files", files);
-  const contents = await renderHtml(files, sourceDir, tempDir.path, options);
-  // log("contents", contents);
+  const md = new MarkdownIt();
+  const puppetPlugin = new PuppetPlugin({
+    cwd: sourceDir,
+    plugins: [bpmnPuppetPlugin]
+  });
+  await puppetPlugin.initialize();
+  md.use(MarkdownItPrism, {
+    plugins: ["line-numbers"],
+  });
+  md.use(puppetPlugin.register(), {});
+  const contents = await renderHtml(files, sourceDir, tempDir.path, options, md);
+  await puppetPlugin.render();
+  log("contents", contents);
   await writeFiles(contents);
   const params = {
     contents,
@@ -124,5 +133,6 @@ export default async function renderer(opts) {
     default:
       throw new Error(`Unknown Renderer ${options.renderer}`);
   }
+  await puppetPlugin.close();
   tempDir.unlink();
 }

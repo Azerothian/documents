@@ -3,14 +3,14 @@ import renderer from "../renderer";
 // import path from "path";
 // import fs from "fs";
 import debug from "debug";
-debug.enable("documents:*");
+debug.enable("documents:*,puppeteer:console*");
 
 test("puppeteer", async() => {
   await renderer("./test/index.puppeteer.json");
-}, 20000);
-test("pandoc docx", async() => {
-  await renderer("./test/index.pandoc-docx.json");
-});
+}, 40000);
+// test("pandoc docx", async() => {
+//   await renderer("./test/index.pandoc-docx.json");
+// });
 // test("wkhtmltopdf", async() => {
 //   await renderer("./test/index.wkhtmltopdf.json");
 // });

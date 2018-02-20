@@ -8,6 +8,7 @@
     }
   ], "@babel/preset-stage-0"],
   "plugins": [
+    "autobind-class-methods",
     "@babel/plugin-proposal-class-properties"
   ]
 }
