@@ -53,8 +53,8 @@ export default class PuppetPlugin {
       this.mdOptions = userOptions;
       this.md = md;
       const next = md.renderer.rules.fence;
-      md.renderer.rules.fence = (tokens, idx, options) => {
-        return this.fence({tokens, idx, options, next: (opts = {tokens, idx, options}) => next(opts.tokens, opts.idx, opts.options)});
+      md.renderer.rules.fence = (tokens, idx, options, env, slf) => {
+        return this.fence({tokens, idx, options, env, slf, next: (opts = {tokens, idx, options, env, slf}) => next(opts.tokens, opts.idx, opts.options, opts.env, opts.slf)});
       };
     };
   }

@@ -5,8 +5,7 @@
     "noBackground": true
   },
   "files": [
-    "./index.md",
-    "./fld/inside.md"
+    "./index.md"
   ],
   "output": "../out/target-wk.pdf"
 }

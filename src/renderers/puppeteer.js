@@ -30,7 +30,7 @@ async function createThemeHeader(theme, tempDirPath) {
 
 
 export default async function puppeteerRenderer({contents, output, options, tempDirPath, sourceDir}) {
-  const tempFile = path.resolve(tempDirPath, "__tmp.html");
+  const tempFile = path.resolve(tempDirPath, "index.html");
   const processed = contents.reduce((s, c) => {
     s += c.content;
     s += "<div style=\"page-break-after: always;\"></div>";

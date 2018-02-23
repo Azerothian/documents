@@ -6,8 +6,7 @@
   },
   "theme": "./theme/**/*",
   "files": [
-    "./index.md",
-    "./fld/inside.md"
+    "./index.md"
   ],
   "output": "../out/target-pup.pdf"
 }
