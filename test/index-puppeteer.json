@@ -1,11 +1,13 @@
 {
-  "renderer": "wkhtmltopdf",
+  "renderer": "puppeteer",
   "renderOptions": {
     "pageSize": "A4",
     "noBackground": true
   },
+  "static": "./static/",
+  "theme": "./theme/",
   "files": [
     "./index.md"
   ],
-  "output": "../out/target-wk.pdf"
+  "output": "../out/target-pup.pdf"
 }

@@ -2,27 +2,42 @@
 
 ## This is a test
 
-bpmn("./files/temp.bpmn")
+
+
+<div class="container-fluid">
+<div class="row">
+<div class="col-6">
+
+```puppet
+---
+attrs:
+  class: "img-fluid"
+plugin: "bpmn"
+file: "./static/files/pizza-collaboration.bpmn"
+viewport:
+  width: 1920
+  height: 1920
+---
+```
+
+</div>
+<div class="col-6">
 
 ```javascript
   import util from "util";
 ```
 
-```puppet
----
-plugin: "bpmn"
-file: "./files/pizza-collaboration.bpmn"
-viewport:
-  width: 1920
-  height: 900
----
-```
+</div>
+</div>
+</div>
 
 Spacer
 
 ```puppet
 ---
-file: "./files/d3-test.html"
+attrs:
+  class: "img-fluid"
+file: "./static/files/d3-test.html"
 viewport:
   width: 1920
   height: 1200
@@ -30,5 +45,9 @@ viewport:
 ```
 
 
+::: container-fluid
+::: row
+::: col-6
 - no wai
 - rofl
+:::

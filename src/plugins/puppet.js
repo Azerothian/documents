@@ -7,7 +7,12 @@ export default class PuppetPlugin {
   }
   async init(md) {
     this.puppet = new Puppet({
-      cwd: this.options.sourceDir,
+      // renderFile: this.options.renderFile,
+      // sourceDir: this.options.source.dir,
+      // workingDir: this.options.target.dir,
+      workingDir: this.options.source.dir,
+      relativeDir: this.options.target.dir,
+      outputDir: this.options.target.contentDir,
       plugins: [bpmnPuppetPlugin],
     });
     await this.puppet.initialize();

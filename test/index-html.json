@@ -1,12 +1,13 @@
 {
-  "renderer": "puppeteer",
+  "renderer": "html",
   "renderOptions": {
     "pageSize": "A4",
     "noBackground": true
   },
-  "theme": "./theme/**/*",
+  "static": "./static/",
+  "theme": "./theme/",
   "files": [
     "./index.md"
   ],
-  "output": "../out/target-pup.pdf"
+  "output": "../out/target-html/"
 }

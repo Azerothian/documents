@@ -44,6 +44,7 @@
     "globby": "^8.0.1",
     "markdown-it": "^8.4.1",
     "markdown-it-attrs": "^1.2.1",
+    "markdown-it-container": "^2.0.0",
     "markdown-it-prism": "^1.1.1",
     "markdown-it-toc": "^1.1.0",
     "minimist": "^1.2.0",

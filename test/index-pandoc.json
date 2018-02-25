@@ -4,8 +4,10 @@
     "pageSize": "A4",
     "noBackground": true
   },
+  "static": "./static/",
+  "theme": "./theme/",
   "files": [
     "./index.md"
   ],
-  "output": "../out/target.docx"
+  "output": "../out/target-pandoc-docx.docx"
 }

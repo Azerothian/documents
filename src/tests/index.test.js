@@ -6,11 +6,14 @@ import debug from "debug";
 debug.enable("documents:*,puppeteer:console*");
 
 test("puppeteer", async() => {
-  await renderer("./test/index.puppeteer.json");
+  await renderer("./test/index-puppeteer.json");
 }, 40000);
-// test("pandoc docx", async() => {
-//   await renderer("./test/index.pandoc-docx.json");
-// });
+test("html", async() => {
+  await renderer("./test/index-html.json");
+}, 40000);
+test("pandoc docx", async() => {
+  await renderer("./test/index-pandoc.json");
+}, 40000);
 // test("wkhtmltopdf", async() => {
 //   await renderer("./test/index.wkhtmltopdf.json");
 // });
