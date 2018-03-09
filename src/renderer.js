@@ -151,7 +151,7 @@ export default async function renderer(opts) {
       s += "<div style=\"page-break-after: always;\"></div>";
       return s;
     }, "");
-    const header = await createThemeHeader(options.theme, tempDir.path);
+    const header = await createThemeHeader(tempDir.path);
     log("header", header);
     const fileData = `<html><head>${header}</head><body>${processed}</body></html>`;
     await writeFileAsync(renderFile, fileData, "utf8");
