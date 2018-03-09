@@ -21,7 +21,7 @@ export default async function copyAll(src, dest, exclude = ["!**/*.md", "!**/tmp
   const files = await globby(["**/*"].concat(exclude), {
     cwd: src,
   });
-  // log("copyAll - files", files);
+  log("copyAll - files", files);
   return Promise.all(files.map(async(f) => {
     
     if (f !== ".") {

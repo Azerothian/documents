@@ -28,9 +28,7 @@ const readFileAsync = util.promisify(fs.readFile);
 const writeFileAsync = util.promisify(fs.writeFile);
 // const ensureDirAsync = util.promisify(fs.ensureDir);
 
-const plugins = [PuppetPlugin, MarkdownItPlugin, 
-  // BootstrapStylePlugin
-];
+const plugins = [PuppetPlugin, MarkdownItPlugin];
 
 const log = debug("documents::renderer:");
 
@@ -95,89 +93,96 @@ async function writeFiles(contents) {
 
 
 export default async function renderer(opts) {
-  let sourceDir, outputFile;
-  let options = opts;
-  if (typeof opts === "string") {
-    sourceDir = path.dirname(path.resolve(process.cwd(), opts));
-    options = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), opts)));
-    outputFile = path.resolve(process.cwd(), path.dirname(opts), options.output);
-    // log("###############", {cwd: process.cwd(), opts: path.dirname(opts), output: options.output, outputFile});
+  let tempDir;
+  try {
+    let sourceDir, outputFile;
+    let options = opts;
+    if (typeof opts === "string") {
+      sourceDir = path.dirname(path.resolve(process.cwd(), opts));
+      options = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), opts)));
+      outputFile = path.resolve(process.cwd(), path.dirname(opts), options.output);
+      // log("###############", {cwd: process.cwd(), opts: path.dirname(opts), output: options.output, outputFile});
+    }
+    if (options.dir) {
+      sourceDir = options.dir;
+    }
+    // log("opts", options);
+    tempDir = await tempfsMkdir(tempDirOptions);
+    const renderFile = path.resolve(tempDir.path, "index.html");
+    const targetOpts = {
+      renderFile,
+      dir: tempDir.path,
+      staticDir: path.resolve(tempDir.path, options.static),
+      themeDir: path.resolve(tempDir.path, "./theme"),
+      contentDir: path.resolve(tempDir.path, "./content/"),
+    };
+    const sourceOpts = {
+      dir: sourceDir,
+      staticDir: path.resolve(sourceDir, options.static),
+      themeDir: path.resolve(sourceDir, options.theme),
+    };
+    await fs.ensureDir(targetOpts.staticDir);
+    await fs.ensureDir(targetOpts.themeDir);
+    await fs.ensureDir(targetOpts.contentDir);
+    log("copy static");
+    await copyAll(sourceOpts.staticDir, targetOpts.staticDir);
+    log("copy theme");
+    await copyAll(sourceOpts.themeDir, targetOpts.themeDir);
+
+    const files = await extractFiles(options);
+    const initPlugins = plugins.map((Plugin) => new Plugin({
+      target: targetOpts,
+      source: sourceOpts,
+    }));
+
+    const md = new MarkdownIt({
+      html: true,
+      // linkify: true,
+      // typographer: true,
+    });
+    await (promiseFall(initPlugins, "init")(md));
+    const contents = await renderHtml(files, sourceDir, tempDir.path, options, md, initPlugins);
+    await (promiseFall(initPlugins, "after")(contents));
+
+    log("contents", contents);
+    await writeFiles(contents);
+    const processed = contents.reduce((s, c) => {
+      s += c.content;
+      s += "<div style=\"page-break-after: always;\"></div>";
+      return s;
+    }, "");
+    const header = await createThemeHeader(options.theme, tempDir.path);
+    log("header", header);
+    const fileData = `<html><head>${header}</head><body>${processed}</body></html>`;
+    await writeFileAsync(renderFile, fileData, "utf8");
+
+    const params = {
+      output: outputFile,
+      renderFile,
+      targetDir: targetOpts.dir,
+      options: options.options,
+    };
+    switch (options.renderer) {
+      case "html":
+        await htmlRenderer(params);
+        break;
+      // case "wkhtmltopdf":
+      //   await wkHtmlPdfRenderer(params);
+      //   break;
+      case "pandoc":
+        await pandocRenderer(params);
+        break;
+      case "puppeteer":
+        await puppeteerRenderer(params);
+        break;
+      default:
+        throw new Error(`Unknown Renderer ${options.renderer}`);
+    }
+    await (promiseFall(initPlugins, "end")(contents));
+  } catch (e) {
+    log("err", e);
   }
-  if (options.dir) {
-    sourceDir = options.dir;
+  if (tempDir) {
+    tempDir.unlink();
   }
-  // log("opts", options);
-  const tempDir = await tempfsMkdir(tempDirOptions);
-  const renderFile = path.resolve(tempDir.path, "index.html");
-  const targetOpts = {
-    renderFile,
-    dir: tempDir.path,
-    staticDir: path.resolve(tempDir.path, options.static),
-    themeDir: path.resolve(tempDir.path, "./theme/"),
-    contentDir: path.resolve(tempDir.path, "./content/"),
-  };
-  const sourceOpts = {
-    dir: sourceDir,
-    staticDir: path.resolve(sourceDir, options.static),
-    themeDir: path.resolve(sourceDir, options.theme),
-  };
-  await fs.ensureDir(targetOpts.staticDir);
-  await fs.ensureDir(targetOpts.themeDir);
-  await fs.ensureDir(targetOpts.contentDir);
-  log("copy static");
-  await copyAll(sourceOpts.staticDir, targetOpts.staticDir);
-  log("copy theme");
-  await copyAll(sourceOpts.themeDir, targetOpts.themeDir);
-
-  const files = await extractFiles(options);
-  const initPlugins = plugins.map((Plugin) => new Plugin({
-    target: targetOpts,
-    source: sourceOpts,
-  }));
-
-  const md = new MarkdownIt({
-    html: true,
-    // linkify: true,
-    // typographer: true,
-  });
-  await (promiseFall(initPlugins, "init")(md));
-  const contents = await renderHtml(files, sourceDir, tempDir.path, options, md, initPlugins);
-  await (promiseFall(initPlugins, "after")(contents));
-
-  log("contents", contents);
-  await writeFiles(contents);
-  const processed = contents.reduce((s, c) => {
-    s += c.content;
-    s += "<div style=\"page-break-after: always;\"></div>";
-    return s;
-  }, "");
-  const header = await createThemeHeader(tempDir.path);
-  log("header", header);
-  const fileData = `<html><head>${header}</head><body>${processed}</body></html>`;
-  await writeFileAsync(renderFile, fileData, "utf8");
-
-  const params = {
-    output: outputFile,
-    renderFile,
-    targetDir: targetOpts.dir,
-  };
-  switch (options.renderer) {
-    case "html":
-      await htmlRenderer(params);
-      break;
-    // case "wkhtmltopdf":
-    //   await wkHtmlPdfRenderer(params);
-    //   break;
-    case "pandoc":
-      await pandocRenderer(params);
-      break;
-    case "puppeteer":
-      await puppeteerRenderer(params);
-      break;
-    default:
-      throw new Error(`Unknown Renderer ${options.renderer}`);
-  }
-  await (promiseFall(initPlugins, "end")(contents));
-
-  tempDir.unlink();
 }
