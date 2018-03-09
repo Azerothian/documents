@@ -1,14 +1,16 @@
 
 import util from "util";
-import fs from "fs-extra";
+import fse from "fs-extra";
+import fs from "fs";
 import globby from "globby";
 import path from "path";
 import debug from "debug";
-const copyFileAsync = util.promisify(fs.copyFile);
-const ensureDirAsync = util.promisify(fs.ensureDir);
+const copyFileAsync = util.promisify(fse.copyFile);
+const ensureDirAsync = util.promisify(fse.ensureDir);
+const existsAsync = util.promisify(fs.exists);
 const log = debug("documents::utils:copy-all:");
 
-export default async function copyAll(src, dest, exclude = ["!**/*.md"]) {
+export default async function copyAll(src, dest, exclude = ["!**/*.md", "!**/tmp-*"]) {
   if (!src) {
     throw new Error("src is undefined");
   }
@@ -21,13 +23,17 @@ export default async function copyAll(src, dest, exclude = ["!**/*.md"]) {
   });
   // log("copyAll - files", files);
   return Promise.all(files.map(async(f) => {
-    // log("target", f);
+    
     if (f !== ".") {
       await ensureDirAsync(path.resolve(dest, path.dirname(f)));
     }
     const from = path.resolve(src, f);
     const to = path.resolve(dest, f);
-    // log("copy", {from, to});
-    return copyFileAsync(from, to);
+    log("target", to);
+    if (!(await existsAsync(to))) {
+      await copyFileAsync(from, to);
+    }
+    return undefined;
+    
   }));
 }

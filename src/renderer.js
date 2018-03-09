@@ -12,7 +12,6 @@ import "source-map-support/register";
 
 import copyAll from "./utils/copy-all";
 import pandocRenderer from "./renderers/pandoc";
-import wkHtmlPdfRenderer from "./renderers/wkhtmltopdf";
 import puppeteerRenderer from "./renderers/puppeteer";
 import htmlRenderer from "./renderers/html";
 import promiseFall from "./utils/promise-fall";
@@ -40,10 +39,11 @@ const tempDirOptions = {
   recursive: true,
   track: true,
 };
-async function createThemeHeader(theme, tempDirPath) {
+async function createThemeHeader(tempDirPath) {
   const themeItems = await globby("./theme/**/*", {
     cwd: tempDirPath,
   });
+  log("themeItems", themeItems);
   return themeItems.reduce((s, v) => {
     log("themeItem", v);
     switch (path.extname(v)) {
@@ -113,7 +113,7 @@ export default async function renderer(opts) {
     renderFile,
     dir: tempDir.path,
     staticDir: path.resolve(tempDir.path, options.static),
-    themeDir: path.resolve(tempDir.path, options.theme),
+    themeDir: path.resolve(tempDir.path, "./theme/"),
     contentDir: path.resolve(tempDir.path, "./content/"),
   };
   const sourceOpts = {
@@ -151,7 +151,7 @@ export default async function renderer(opts) {
     s += "<div style=\"page-break-after: always;\"></div>";
     return s;
   }, "");
-  const header = await createThemeHeader(options.theme, tempDir.path);
+  const header = await createThemeHeader(tempDir.path);
   log("header", header);
   const fileData = `<html><head>${header}</head><body>${processed}</body></html>`;
   await writeFileAsync(renderFile, fileData, "utf8");
