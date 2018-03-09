@@ -107,7 +107,7 @@ export default class PuppetPlugin {
           contents = await readFileAsync(targetFile, {encoding: "utf8"});
           const plugin = this.plugins[attributes.plugin];
           // renderFile = path.resolve(this.options.relativeDir, attributes.file);
-          const html = await plugin.html();
+          const html = await plugin.html(attributes.options || {});
           log("writing html from plugin and file", renderFile);
           await writeFileAsync(renderFile, html, "utf8");
         } else if (attributes.plugin && !attributes.file) {

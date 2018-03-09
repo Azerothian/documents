@@ -1,10 +1,10 @@
 export default {
   name: "bpmn",
-  html() {
+  html({style}) {
     return `<html>
       <head>
       <style>
-  
+        ${style};
       </style>
       <link rel="stylesheet" href="https://unpkg.com/bpmn-js@0.27.2/dist/assets/diagram-js.css" />
       <link rel="stylesheet" href="https://unpkg.com/bpmn-js@0.27.2/dist/assets/bpmn-font/css/bpmn.css" />
